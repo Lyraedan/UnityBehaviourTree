@@ -13,15 +13,11 @@ public class NodeAction
     {
         get
         {
-            int met = 0;
-            for(int i = 0; i < conditions.Count; i++)
-            {
-                if(conditions[i])
-                {
-                    met++;
-                }
-            }
-            return met >= conditions.Count;
+            // If there are no conditions auto meet
+            if (conditions.Count == 0)
+                return true;
+
+            return conditions.TrueForAll(i => i.Equals(true));
         }
     }
 
@@ -46,7 +42,7 @@ public class NodeAction
             return true;
         } else
         {
-            UnityEngine.Debug.LogError("Conditions not met for " + id);
+            UnityEngine.Debug.LogError("Conditions not met for " + id + " [" + conditions.Count + "]");
             return false;
         }
     }

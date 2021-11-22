@@ -32,15 +32,18 @@ public class Node
         if (parent != null)
         {
             if (!parent.hasExecuted)
+            {
                 return false;
+            }
         }
 
         int count = 0;
-        foreach(NodeAction action in actions) {
-            bool success = action.Execute();
+        for(int i = 0; i < actions.Count; i++) {
+            bool success = actions[i].Execute();
             if (success)
                 count++;
         }
+        Debug.Log("Successfully executed: " + count + " / " + actions.Count + " actions on " + id);
         hasExecuted = count >= actions.Count;
         return hasExecuted;
     }
