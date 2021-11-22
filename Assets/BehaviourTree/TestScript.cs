@@ -18,16 +18,16 @@ public class TestScript : MonoBehaviour
     {
         // Setup the entry node
         NodeAction masterAction = new NodeAction("Init", Init, () => state.Equals(State.INIT));
-        Node root = new Node("Make decision", masterAction);
+        tree.root = new Node("Make decision", masterAction);
 
         // Create 3 nodes that branch of the entry node
         NodeAction actionA = new NodeAction("Go for walk", MakeDecision, () => state.Equals(State.IDLE));
         NodeAction actionB = new NodeAction("Start hunting", MakeDecision, () => state.Equals(State.HUNTING));
-        //NodeAction actionC = new NodeAction("Do nothing", Fallback); // NodeAction with no condition
+        NodeAction actionC = new NodeAction("Do nothing", Fallback); // NodeAction with no condition
 
-        Node childA = new Node(root, "Walk", actionA);
-        Node childB = new Node(root, "Hunt", actionB);
-        //Node childC = new Node(root, "Nothing", actionC);
+        Node childA = new Node(tree.root, "Walk", actionA);
+        Node childB = new Node(tree.root, "Hunt", actionB);
+        Node childC = new Node(tree.root, "Nothing", actionC);
 
         // Create another node that branches off the first node we created past entry
         Node innerChild = new Node(childA, "End walk", new NodeAction("Finish walk", FinishWalk, () => state.Equals(State.WALKING)));
@@ -38,15 +38,14 @@ public class TestScript : MonoBehaviour
               v 
              ic
          */
-        tree.selected = root;
+        tree.selected = tree.root;
         tree.ExecuteNodeTree();
     }
-
 
     void Init(string id)
     {
         Debug.Log("Making initial decision");
-        int i = 2;
+        int i = 0;
         if(i == 0)
         {
             state = State.IDLE;

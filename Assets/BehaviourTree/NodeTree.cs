@@ -5,6 +5,7 @@ using UnityEngine;
 public class NodeTree : MonoBehaviour
 {
     private int currentChild = 0;
+    public Node root;
     public Node selected;
 
     public void ExecuteNodeTree()
