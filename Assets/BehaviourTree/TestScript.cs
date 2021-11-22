@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NodeSelector : MonoBehaviour
+public class TestScript : MonoBehaviour
 {
-    private int currentChild = 0;
-    private Node selected;
+    public NodeTree tree;
 
     int i = 0;
 
@@ -25,9 +24,10 @@ public class NodeSelector : MonoBehaviour
 
         Node innerChild = new Node(childA, "Inner child", new NodeAction("Inner child", InnerChild));
 
-        selected = root;
-        ExecuteNodeTree();
+        tree.selected = root;
+        tree.ExecuteNodeTree();
     }
+
 
     void Init(string id)
     {
@@ -52,38 +52,4 @@ public class NodeSelector : MonoBehaviour
         Debug.Log("All other node trees failed. Using fallback with " + id);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void ExecuteNodeTree()
-    {
-        // Execute our selected
-        bool selectedExecuted = selected.Execute();
-
-        while (selectedExecuted)
-        {
-            if (currentChild >= selected.children.Count)
-            {
-                Debug.LogError("No more child elements to check through on " + selected.id);
-                break;
-            }
-
-            // Execute the current child
-            bool childExecuted = selected.children[currentChild].Execute();
-            if (childExecuted)
-            {
-                selected = selected.children[currentChild];
-                currentChild = 0;
-                selectedExecuted = selected.Execute();
-            }
-            else
-            {
-                currentChild++;
-            }
-        }
-        Debug.Log("Executed node tree");
-    }
 }
