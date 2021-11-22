@@ -6,7 +6,7 @@ using System.Linq;
 public class NodeAction
 {
     public string id = "Node action";
-    public List<bool> conditions = new List<bool>();
+    public Func<bool> predicts;
     public Action<string> callback;
 
     bool ConditionsMet
@@ -14,24 +14,25 @@ public class NodeAction
         get
         {
             // If there are no conditions auto meet
-            if (conditions.Count == 0)
+            if (predicts == null)
                 return true;
 
-            return conditions.TrueForAll(i => i.Equals(true));
+            // Conditions need refreshing after each node execution
+            return predicts();
         }
     }
 
-    public NodeAction(string id, Action<string> callback, params bool[] conditions)
+    public NodeAction(string id, Action<string> callback, Func<bool> predicts = null)
     {
         this.id = id;
         this.callback = callback;
-        this.conditions = conditions.OfType<bool>().ToList();
+        this.predicts = predicts;
     }
 
-    public NodeAction(string id, params bool[] conditions)
+    public NodeAction(string id, Func<bool> predicts)
     {
         this.id = id;
-        this.conditions = conditions.OfType<bool>().ToList();
+        this.predicts = predicts;
     }
 
     public bool Execute()
@@ -42,7 +43,7 @@ public class NodeAction
             return true;
         } else
         {
-            UnityEngine.Debug.LogError("Conditions not met for " + id + " [" + conditions.Count + "]");
+            UnityEngine.Debug.LogError("Conditions not met for " + id);
             return false;
         }
     }

@@ -16,15 +16,17 @@ public class NodeTree : MonoBehaviour
         {
             if (currentChild >= selected.children.Count)
             {
-                Debug.LogError("No more child elements to check through on " + selected.id);
+                Debug.Log("<color=#ff0000>No more child elements to check through on " + selected.id + " -> Exiting node tree</color>");
                 selectedExecuted = false;
                 break;
             }
 
             // Execute the current child
-            bool childExecuted = selected.children[currentChild].Execute();
+            Node child = selected.children[currentChild];
+            bool childExecuted = child.Execute();
             if (childExecuted)
             {
+                Debug.Log("<color=#00ff00>Child " + currentChild + " successfully executed</color>");
                 selected = selected.children[currentChild];
                 currentChild = 0;
                 selectedExecuted = true;
@@ -32,6 +34,7 @@ public class NodeTree : MonoBehaviour
             else
             {
                 currentChild++;
+                Debug.Log("Moving onto child " + currentChild);
             }
         }
         Debug.Log("Executed node tree");

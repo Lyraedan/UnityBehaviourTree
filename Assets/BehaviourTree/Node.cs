@@ -43,7 +43,6 @@ public class Node
             if (success)
                 count++;
         }
-        Debug.Log("Successfully executed: " + count + " / " + actions.Count + " actions on " + id);
         hasExecuted = count >= actions.Count;
         return hasExecuted;
     }

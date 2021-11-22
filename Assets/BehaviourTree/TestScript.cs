@@ -6,24 +6,38 @@ public class TestScript : MonoBehaviour
 {
     public NodeTree tree;
 
-    int i = 0;
+    public enum State
+    {
+        INIT, IDLE, WALKING, HUNTING
+    }
+
+    public State state = State.INIT;
 
     // Start is called before the first frame update
     void Start()
     {
-        NodeAction masterAction = new NodeAction("Init", Init, i == 0);
-        Node root = new Node("Start", masterAction);
+        // Setup the entry node
+        NodeAction masterAction = new NodeAction("Init", Init, () => state.Equals(State.INIT));
+        Node root = new Node("Make decision", masterAction);
 
-        NodeAction actionA = new NodeAction("Action A", SharedAction, i == 1);
-        NodeAction actionB = new NodeAction("Action B", SharedAction, i == 2);
-        NodeAction actionC = new NodeAction("Fallback", Fallback);
+        // Create 3 nodes that branch of the entry node
+        NodeAction actionA = new NodeAction("Go for walk", MakeDecision, () => state.Equals(State.IDLE));
+        NodeAction actionB = new NodeAction("Start hunting", MakeDecision, () => state.Equals(State.HUNTING));
+        //NodeAction actionC = new NodeAction("Do nothing", Fallback); // NodeAction with no condition
 
-        Node childA = new Node(root, "Test A", actionA);
-        Node childB = new Node(root, "Test B", actionB);
-        Node childC = new Node(root, "Test C", actionC);
+        Node childA = new Node(root, "Walk", actionA);
+        Node childB = new Node(root, "Hunt", actionB);
+        //Node childC = new Node(root, "Nothing", actionC);
 
-        Node innerChild = new Node(childA, "Inner child", new NodeAction("Inner child", InnerChild));
-
+        // Create another node that branches off the first node we created past entry
+        Node innerChild = new Node(childA, "End walk", new NodeAction("Finish walk", FinishWalk, () => state.Equals(State.WALKING)));
+        /*
+                Entry
+                  V
+              A   B   C
+              v 
+             ic
+         */
         tree.selected = root;
         tree.ExecuteNodeTree();
     }
@@ -31,20 +45,32 @@ public class TestScript : MonoBehaviour
 
     void Init(string id)
     {
-        Debug.Log("Node action executed for " + id + " :D");
-        i++;
-        Debug.Log("i = " + i);
+        Debug.Log("Making initial decision");
+        int i = 2;
+        if(i == 0)
+        {
+            state = State.IDLE;
+        } else if(i == 1)
+        {
+            state = State.HUNTING;
+        }
     }
 
-    void SharedAction(string id)
+    void MakeDecision(string id)
     {
-        Debug.Log("Child node shared action executed for " + id);
-        i++;
+        if(state.Equals(State.IDLE))
+        {
+            Debug.Log("Going for a walk");
+            state = State.WALKING;
+        } else
+        {
+            Debug.Log("Hunting");
+        }
     }
 
-    void InnerChild(string id)
+    void FinishWalk(string id)
     {
-        Debug.Log("Child from within child (Child C) executed");
+        Debug.Log("Finished walk");
     }
 
     void Fallback(string id)
