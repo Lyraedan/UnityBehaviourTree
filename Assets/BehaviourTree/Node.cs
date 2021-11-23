@@ -10,7 +10,9 @@ public class Node
     public List<Node> children = new List<Node>();
     public string id = "Node";
     public List<NodeAction> actions = new List<NodeAction>();
+
     public bool hasExecuted = false;
+    public bool conditionsNotMet = false;
 
     public Node(string id, params NodeAction[] actions)
     {
@@ -42,8 +44,10 @@ public class Node
             bool success = actions[i].Execute();
             if (success)
                 count++;
+
         }
         hasExecuted = count >= actions.Count;
+        conditionsNotMet = count < actions.Count;
         return hasExecuted;
     }
 }

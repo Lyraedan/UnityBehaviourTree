@@ -45,7 +45,7 @@ public class TestScript : MonoBehaviour
     void Init(string id)
     {
         Debug.Log("Making initial decision");
-        int i = 0;
+        int i = 1;
         if(i == 0)
         {
             state = State.IDLE;

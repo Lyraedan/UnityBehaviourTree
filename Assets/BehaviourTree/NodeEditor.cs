@@ -78,7 +78,10 @@ public class NodeEditor : Editor
         Rect bounds = new Rect(v.x, v.y, w, h);
 
         GL.Begin(GL.QUADS);
-        GL.Color(node.hasExecuted ? Color.yellow : Color.white);
+        Color color = Color.white;
+        if (node.hasExecuted) color = Color.yellow;
+        else if (node.conditionsNotMet) color = Color.red;
+        GL.Color(color);
         GL.Vertex3(bounds.x, bounds.y, 0);
         GL.Vertex3(bounds.x + bounds.width, bounds.y, 0);
         GL.Vertex3(bounds.x + bounds.width, bounds.y + bounds.height, 0);
