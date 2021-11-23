@@ -9,8 +9,10 @@ Node based behaviour tree in unity
 
 <b>Non Unity specific classes</b>
 `Node.cs`,
-`NodeTree.cs`,
 `NodeAction.cs`,
+
+<b>Sub-Unity dependancy</b>
+`NodeTree.cs`
 
 To use NodeTree outside of Unity, remove `using UnityEngine;` and remove the inheritence of `MonoBehaviour`
 
