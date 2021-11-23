@@ -13,7 +13,7 @@ Node based behaviour tree in unity
 `Node.cs`,
 `NodeAction.cs`,
 
-<b>Sub-Unity dependancy</b>
+<b>Sub-Unity dependancy (Unity dependancies can easily be removed without breaking functionality)</b>
 
 `NodeTree.cs`
 
