@@ -56,11 +56,18 @@ public class NodeBasedEditor : EditorWindow
         DrawConnections();
 
         DrawConnectionLine(Event.current);
+        DrawInspector();
+
         ProcessNodeEvents(Event.current);
         ProcessEvents(Event.current);
 
         if (GUI.changed) 
             Repaint();
+    }
+
+    private void DrawInspector()
+    {
+        EditorGUI.IntField(new Rect(0, 0, 50, 25), 0);
     }
 
     private void DrawNodes()
