@@ -381,10 +381,10 @@ public class NodeBasedEditor : EditorWindow
         {
             nodes = new List<EditorNode>();
         }
-        Vector2 placement = Vector2.zero;
         // Root
         if (tree.root != null)
         {
+            Vector2 placement = new Vector2(0, 50 * (tree.root.children.Count / 2));
             EditorNode rootNode = new EditorNode(tree.root, placement, 200, 50, nodeStyle, selectedStyle, executingStyle, executingSelectedStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
             rootNode.actionId = tree.root.id;
             nodes.Add(rootNode);
@@ -397,12 +397,13 @@ public class NodeBasedEditor : EditorWindow
         Vector2 position = placement;
         int nodeWidth = 200;
         int nodeHeight = 50;
-        position.x += nodeWidth + 20 * child;
+        position.x += (nodeWidth * 1.2f) + 20 * child;
         position.y = 0;
 
         // Add the nodes
         for (int i = 0; i < node.children.Count; i++)
         {
+            // Todo fix positioning for Y coord
             position.y += nodeHeight * i;
             EditorNode editorNode = new EditorNode(node.children[i], position, nodeWidth, nodeHeight, nodeStyle, selectedStyle, executingStyle, executingSelectedStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
             editorNode.actionId = node.children[i].id;

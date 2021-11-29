@@ -22,10 +22,18 @@ public class Node
 
     public Node(Node parent, string id, params NodeAction[] actions)
     {
-        this.parent = parent;
-        parent.children.Add(this);
+        SetParent(parent);
         this.id = id;
         this.actions = actions.OfType<NodeAction>().ToList();
+    }
+
+    public void SetParent(Node node)
+    {
+        if (node == null)
+            return;
+
+        this.parent = node;
+        parent.children.Add(this);
     }
 
     public bool Execute()

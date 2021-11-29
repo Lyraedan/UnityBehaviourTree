@@ -307,6 +307,7 @@ GameObject:
   - component: {fileID: 1994031427}
   - component: {fileID: 1994031428}
   - component: {fileID: 1994031426}
+  - component: {fileID: 1994031429}
   m_Layer: 0
   m_Name: NodeTreeTest
   m_TagString: Untagged
@@ -347,9 +348,23 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1994031425}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f6b15b498e638845919dc17d64c6469, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tree: {fileID: 1994031426}
+  state: 0
+--- !u!114 &1994031429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1994031425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab45db83c2f499f46a7313c4f0a0631b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  behaviourDoc: {fileID: 4900000, guid: 1c3b710462797644199af64404f79382, type: 3}

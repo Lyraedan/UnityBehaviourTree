@@ -13,7 +13,7 @@ public class TestScriptBehaviourDoc : MonoBehaviour
     {
         var json = JSON.Parse(behaviourDoc.text);
         behaviour = BehaviourDocument.Parse(json);
-        int end = 0;
+        behaviour.GenerateTree(GetType());
     }
 
     // Update is called once per frame

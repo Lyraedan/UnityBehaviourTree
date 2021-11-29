@@ -1,6 +1,7 @@
 [
     {
        "id": "Make decision",
+       "parent": "",
         "action": [
             {
                 "id": "Init",
@@ -17,6 +18,7 @@
     },
     {
         "id": "Walk",
+        "parent": "Make decision",
          "action": [
              {
                  "id": "Go for a walk",
@@ -38,6 +40,7 @@
      },
      {
         "id": "Hunt",
+        "parent": "Make decision",
          "action": [
              {
                  "id": "Start hunting",
