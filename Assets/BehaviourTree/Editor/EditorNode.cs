@@ -9,6 +9,7 @@ using System;
 public class EditorNode
 {
     public Rect rect;
+    public Node node;
     public string title;
     public bool isDragged, isSelected;
 
@@ -17,20 +18,35 @@ public class EditorNode
     public GUIStyle style;
     public GUIStyle defaultNodeStyle;
     public GUIStyle selectedNodeStyle;
+    public GUIStyle executingNodeStyle;
+    public GUIStyle executingSelectedNodeStyle;
 
     public Action<EditorNode> OnRemoveNode;
 
     // Node properties
     public string actionId;
+    private Vector2 mousePosition;
+    private int v1;
+    private int v2;
+    private GUIStyle nodeStyle;
+    private GUIStyle selectedStyle;
+    private GUIStyle inPointStyle;
+    private GUIStyle outPointStyle;
+    private Action<EditorConnectionPoint> onClickInPoint;
+    private Action<EditorConnectionPoint> onClickOutPoint;
+    private Action<EditorNode> onClickRemoveNode;
 
-    public EditorNode(Vector2 position, float width, float height, GUIStyle style, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, Action<EditorConnectionPoint> OnClickInPoint, Action<EditorConnectionPoint> OnClickOutPoint, Action<EditorNode> OnClickRemoveNode)
+    public EditorNode(Node node, Vector2 position, float width, float height, GUIStyle style, GUIStyle selectedStyle, GUIStyle executingStyle, GUIStyle executingSelected, GUIStyle inPointStyle, GUIStyle outPointStyle, Action<EditorConnectionPoint> OnClickInPoint, Action<EditorConnectionPoint> OnClickOutPoint, Action<EditorNode> OnClickRemoveNode)
     {
+        this.node = node;
         rect = new Rect(position.x, position.y, width, height);
         this.style = style;
         inPoint = new EditorConnectionPoint(this, ConnectionPointType.IN, inPointStyle, OnClickInPoint);
         outPoint = new EditorConnectionPoint(this, ConnectionPointType.OUT, outPointStyle, OnClickOutPoint);
         defaultNodeStyle = style;
         selectedNodeStyle = selectedStyle;
+        executingNodeStyle = executingStyle;
+        executingSelectedNodeStyle = executingSelected;
         OnRemoveNode = OnClickRemoveNode;
     }
 
@@ -86,6 +102,13 @@ public class EditorNode
                     return true;
                 }
                 break;
+        }
+        if (node != null)
+        {
+            if (node.hasExecuted)
+            {
+                style = isSelected ? executingSelectedNodeStyle : executingNodeStyle;
+            }
         }
         return false;
     }

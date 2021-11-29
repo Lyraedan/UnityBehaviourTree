@@ -16,6 +16,7 @@ public class TestScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         // Setup the entry node
         NodeAction masterAction = new NodeAction("Init", Init, () => state.Equals(State.INIT));
         tree.root = new Node("Make decision", masterAction);
@@ -45,7 +46,7 @@ public class TestScript : MonoBehaviour
     void Init(string id)
     {
         Debug.Log("Making initial decision");
-        int i = 1;
+        int i = 0;
         if(i == 0)
         {
             state = State.IDLE;

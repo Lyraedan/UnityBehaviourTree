@@ -1,0 +1,60 @@
+[
+    {
+       "id": "Make decision",
+        "action": [
+            {
+                "id": "Init",
+                "callback": "Init",
+                "conditions": [
+                    {
+                        "variable": "state",
+                        "check": "equals",
+                        "value": "0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "Walk",
+         "action": [
+             {
+                 "id": "Go for a walk",
+                 "callback": "MakeDecision",
+                 "conditions": [
+                     {
+                         "variable": "state",
+                         "check": "equals",
+                         "value": "1"
+                     },
+                     {
+                         "variable": "index",
+                         "check": "equals",
+                         "value": "0"
+                     }
+                 ]
+             }
+         ]
+     },
+     {
+        "id": "Hunt",
+         "action": [
+             {
+                 "id": "Start hunting",
+                 "callback": "MakeDecision",
+                 "conditions": [
+                     {
+                         "variable": "state",
+                         "check": "equals",
+                         "value": "2"
+                     },
+                     {
+                         "variable": "index",
+                         "check": "equals",
+                         "value": "1"
+                     }
+                 ]
+             }
+         ]
+     }
+]

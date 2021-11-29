@@ -1,15 +1,23 @@
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
 public class NodeBasedEditor : EditorWindow
 {
+    private static NodeBasedEditor window;
+    [SerializeField] private NodeTree currentTree;
+    private bool loadedTree = false;
+
     private List<EditorNode> nodes;
     private List<EditorConnection> connections;
 
     private GUIStyle nodeStyle;
-    private GUIStyle selectedNodeStyle;
+    private GUIStyle selectedStyle;
+
+    private GUIStyle executingStyle;
+    private GUIStyle executingSelectedStyle;
+
     private GUIStyle inPointStyle;
     private GUIStyle outPointStyle;
 
@@ -22,7 +30,7 @@ public class NodeBasedEditor : EditorWindow
     [MenuItem("Window/Node Based Editor")]
     private static void OpenWindow()
     {
-        NodeBasedEditor window = GetWindow<NodeBasedEditor>();
+        window = GetWindow<NodeBasedEditor>();
         window.titleContent = new GUIContent("Node Based Editor");
     }
 
@@ -32,9 +40,17 @@ public class NodeBasedEditor : EditorWindow
         nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
         nodeStyle.border = new RectOffset(12, 12, 12, 12);
 
-        selectedNodeStyle = new GUIStyle();
-        selectedNodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
-        selectedNodeStyle.border = new RectOffset(12, 12, 12, 12);
+        selectedStyle = new GUIStyle();
+        selectedStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
+        selectedStyle.border = new RectOffset(12, 12, 12, 12);
+
+        executingStyle = new GUIStyle();
+        executingStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node2.png") as Texture2D;
+        executingStyle.border = new RectOffset(12, 12, 12, 12);
+
+        executingSelectedStyle = new GUIStyle();
+        executingSelectedStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node2 on.png") as Texture2D;
+        executingSelectedStyle.border = new RectOffset(12, 12, 12, 12);
 
         inPointStyle = new GUIStyle();
         inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
@@ -61,20 +77,42 @@ public class NodeBasedEditor : EditorWindow
         ProcessNodeEvents(Event.current);
         ProcessEvents(Event.current);
 
-        if (GUI.changed) 
+        if (GUI.changed)
             Repaint();
     }
 
     private void DrawInspector()
     {
-        EditorGUI.IntField(new Rect(0, 0, 50, 25), 0);
+        var obj = new SerializedObject(this);
+
+        SerializedProperty tree = obj.FindProperty("currentTree");
+        var selectedTree = EditorGUILayout.PropertyField(tree, new GUIContent("Current Tree"), GUILayout.Height(25));
+        currentTree = (NodeTree)tree.objectReferenceValue;
+        if(currentTree != null)
+        {
+            // Load tree
+            if (!loadedTree)
+            {
+                loadedTree = true;
+                LoadTree(currentTree);
+            }
+        } else
+        {
+            if (loadedTree)
+            {
+                ClearAllNodes();
+                ClearConnections();
+                loadedTree = false;
+            }
+        }
+        obj.ApplyModifiedProperties();
     }
 
     private void DrawNodes()
     {
-        if(nodes != null)
+        if (nodes != null)
         {
-            for(int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < nodes.Count; i++)
             {
                 nodes[i].Draw();
             }
@@ -83,9 +121,9 @@ public class NodeBasedEditor : EditorWindow
 
     private void DrawConnections()
     {
-        if(connections != null)
+        if (connections != null)
         {
-            for(int i = 0; i < connections.Count; i++)
+            for (int i = 0; i < connections.Count; i++)
             {
                 connections[i].Draw();
             }
@@ -154,16 +192,16 @@ public class NodeBasedEditor : EditorWindow
     {
         drag = Vector2.zero;
 
-        switch(e.type)
+        switch (e.type)
         {
             case EventType.MouseDown:
-                if(e.button == 1)
+                if (e.button == 1)
                 {
                     ProcessContextMenu(e.mousePosition);
                 }
                 break;
             case EventType.MouseDrag:
-                if(e.button == 0)
+                if (e.button == 0)
                 {
                     OnDrag(e.delta);
                 }
@@ -195,9 +233,9 @@ public class NodeBasedEditor : EditorWindow
 
     private void ProcessNodeEvents(Event e)
     {
-        if(nodes != null)
+        if (nodes != null)
         {
-            for(int i = nodes.Count - 1; i >= 0; i--)
+            for (int i = nodes.Count - 1; i >= 0; i--)
             {
                 bool guiChanged = nodes[i].ProcessEvents(e);
                 if (guiChanged)
@@ -208,12 +246,13 @@ public class NodeBasedEditor : EditorWindow
 
     private void OnClickAddNode(Vector2 mousePosition)
     {
-        if(nodes == null)
+        if (nodes == null)
         {
             nodes = new List<EditorNode>();
         }
 
-        nodes.Add(new EditorNode(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
+        Node node = new Node(GUID.Generate().ToString());
+        nodes.Add(new EditorNode(node, mousePosition, 200, 50, nodeStyle, selectedStyle, executingStyle, executingSelectedStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
     }
 
     private void OnClickInPoint(EditorConnectionPoint inPoint)
@@ -251,6 +290,7 @@ public class NodeBasedEditor : EditorWindow
             }
         }
     }
+
     private void OnClickRemoveConnection(EditorConnection connection)
     {
         connections.Remove(connection);
@@ -263,7 +303,7 @@ public class NodeBasedEditor : EditorWindow
             connections = new List<EditorConnection>();
         }
 
-        connections.Add(new EditorConnection(selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
+        connections.Add(new EditorConnection(null, selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
     }
 
     private void ClearConnectionSelection()
@@ -274,24 +314,122 @@ public class NodeBasedEditor : EditorWindow
 
     private void OnClickRemoveNode(EditorNode node)
     {
-        if(connections != null)
+        if (connections != null)
         {
             List<EditorConnection> connectionsToRemove = new List<EditorConnection>();
 
-            for(int i = 0; i < connections.Count; i++)
+            for (int i = 0; i < connections.Count; i++)
             {
-                if(connections[i].inPoint == node.inPoint || connections[i].outPoint == node.outPoint)
+                if (connections[i].inPoint == node.inPoint || connections[i].outPoint == node.outPoint)
                 {
                     connectionsToRemove.Add(connections[i]);
                 }
             }
 
-            for(int i = 0; i < connectionsToRemove.Count; i++)
+            for (int i = 0; i < connectionsToRemove.Count; i++)
             {
                 connections.Remove(connectionsToRemove[i]);
             }
             connectionsToRemove = null;
         }
         nodes.Remove(node);
+    }
+
+    private void ClearAllNodes()
+    {
+        if (nodes != null)
+        {
+            if (connections != null)
+            {
+                foreach (EditorNode node in nodes)
+                {
+                    List<EditorConnection> connectionsToRemove = new List<EditorConnection>();
+
+                    for (int i = 0; i < connections.Count; i++)
+                    {
+                        if (connections[i].inPoint == node.inPoint || connections[i].outPoint == node.outPoint)
+                        {
+                            connectionsToRemove.Add(connections[i]);
+                        }
+                    }
+
+                    for (int i = 0; i < connectionsToRemove.Count; i++)
+                    {
+                        connections.Remove(connectionsToRemove[i]);
+                    }
+                    connectionsToRemove = null;
+                }
+            }
+            nodes.Clear();
+        }
+    }
+
+    private void ClearConnections()
+    {
+        if(connections != null)
+        {
+            connections.Clear();
+        }
+
+        selectedInPoint = null;
+        selectedOutPoint = null;
+    }
+
+    private void LoadTree(NodeTree tree)
+    {
+        if (nodes == null)
+        {
+            nodes = new List<EditorNode>();
+        }
+        Vector2 placement = Vector2.zero;
+        // Root
+        if (tree.root != null)
+        {
+            EditorNode rootNode = new EditorNode(tree.root, placement, 200, 50, nodeStyle, selectedStyle, executingStyle, executingSelectedStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
+            rootNode.actionId = tree.root.id;
+            nodes.Add(rootNode);
+            AddBranches(tree.root, placement);
+        }
+    }
+
+    private void AddBranches(Node node, Vector2 placement, int child = 0)
+    {
+        Vector2 position = placement;
+        int nodeWidth = 200;
+        int nodeHeight = 50;
+        position.x += nodeWidth + 20 * child;
+        position.y = 0;
+
+        // Add the nodes
+        for (int i = 0; i < node.children.Count; i++)
+        {
+            position.y += nodeHeight * i;
+            EditorNode editorNode = new EditorNode(node.children[i], position, nodeWidth, nodeHeight, nodeStyle, selectedStyle, executingStyle, executingSelectedStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
+            editorNode.actionId = node.children[i].id;
+            nodes.Add(editorNode);
+        }
+
+        // Create connections
+        if(node.parent != null)
+        {
+            var editorNodeParent = nodes.Single(enode => enode.actionId.Equals(node.parent.id));
+            var current = nodes.Single(enode => enode.actionId.Equals(node.id));
+
+            var parentOut = editorNodeParent.outPoint;
+            var currentIn = current.inPoint;
+
+            if (connections == null)
+            {
+                connections = new List<EditorConnection>();
+            }
+
+            connections.Add(new EditorConnection(node, parentOut, currentIn, OnClickRemoveConnection));
+        }
+
+        // Run through the trees
+        for (int i = 0; i < node.children.Count; i++)
+        {
+            AddBranches(node.children[i], position, child + 1);
+        }
     }
 }

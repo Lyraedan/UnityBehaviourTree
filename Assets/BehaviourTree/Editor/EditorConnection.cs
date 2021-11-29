@@ -6,9 +6,11 @@ public class EditorConnection
 {
     public EditorConnectionPoint inPoint, outPoint;
     public Action<EditorConnection> OnClickRemoveConnection;
+    public Node node;
 
-    public EditorConnection(EditorConnectionPoint inPoint, EditorConnectionPoint outPoint, Action<EditorConnection> OnClickRemoveConnection)
+    public EditorConnection(Node node, EditorConnectionPoint inPoint, EditorConnectionPoint outPoint, Action<EditorConnection> OnClickRemoveConnection)
     {
+        this.node = node;
         this.inPoint = inPoint;
         this.outPoint = outPoint;
         this.OnClickRemoveConnection = OnClickRemoveConnection;
@@ -16,9 +18,14 @@ public class EditorConnection
 
     public void Draw()
     {
+        Color color = Color.white;
+        if(node != null)
+        {
+            color = node.hasExecuted ? Color.yellow : Color.white;
+        }
         Handles.DrawBezier(inPoint.rect.center, outPoint.rect.center,
                            inPoint.rect.center + Vector2.left * 50f, outPoint.rect.center - Vector2.left * 50f,
-                           Color.white,
+                           color,
                            null,
                            2f);
 
