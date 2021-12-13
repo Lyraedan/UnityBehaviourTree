@@ -8,17 +8,18 @@ public class TestScript : MonoBehaviour
 
     public enum State
     {
-        INIT, IDLE, WALKING, HUNTING
+        DECIDE, IDLE, WALKING, HUNTING
     }
 
-    public State state = State.INIT;
+    public State state = State.DECIDE;
+    public int i = 0;
 
     // Start is called before the first frame update
     void Start()
     {
 
         // Setup the entry node
-        NodeAction masterAction = new NodeAction("Init", Init, () => state.Equals(State.INIT));
+        NodeAction masterAction = new NodeAction("Init", Decide, () => state.Equals(State.DECIDE));
         tree.root = new Node("Make decision", masterAction);
 
         // Create 3 nodes that branch of the entry node
@@ -43,10 +44,30 @@ public class TestScript : MonoBehaviour
         tree.ExecuteNodeTree();
     }
 
-    void Init(string id)
+    private void Update()
     {
-        Debug.Log("Making initial decision");
-        int i = 0;
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            i = 0;
+            state = State.DECIDE;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            i = 1;
+            state = State.DECIDE;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            i = 2;
+            state = State.DECIDE;
+        }
+
+        tree.ExecuteNodeTree();
+    }
+
+    void Decide(string id)
+    {
+        Debug.Log("Making decision");
         if(i == 0)
         {
             state = State.IDLE;

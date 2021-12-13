@@ -18,6 +18,7 @@ public class NodeTree : MonoBehaviour
             if (currentChild >= selected.children.Count)
             {
                 Debug.Log("<color=#ff0000>No more child elements to check through on " + selected.id + " -> Exiting node tree</color>");
+                currentChild = 0;
                 selectedExecuted = false;
                 break;
             }
@@ -38,6 +39,20 @@ public class NodeTree : MonoBehaviour
                 Debug.Log("Moving onto child " + currentChild);
             }
         }
+
+        if (currentChild > 0)
+        {
+            for (int i = 0; i < currentChild; i++)
+            {
+                // Flag nodes in prev tree as non-executed
+                selected.hasExecuted = false;
+
+                if (selected.parent != null)
+                    selected = selected.parent;
+            }
+        }
+        selected = root;
+        currentChild = 0;
         Debug.Log("Executed node tree");
     }
 }
